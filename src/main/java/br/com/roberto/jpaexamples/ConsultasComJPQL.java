@@ -1,5 +1,6 @@
 package br.com.roberto.jpaexamples;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -9,6 +10,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import br.com.roberto.jpaexamples.dto.UsuarioDTO;
+import br.com.roberto.jpaexamples.model.Configuracao;
 import br.com.roberto.jpaexamples.model.Dominio;
 import br.com.roberto.jpaexamples.model.Usuario;
 
@@ -27,7 +29,13 @@ public class ConsultasComJPQL {
 		// quintaConsultaListaNomeUsuarios(em);
 		// sextaConsultaFazendoProjecoes(em);
 		// setimaConsultaFazendoProjecoesRetornandoDTO(em);
-		oitavaConsultaPassandoParametros(em);
+		// oitavaConsultaPassandoParametros(em);
+		// nonaConsultaFazendoJoins(em);
+		//decimaConsultaFazendoLeftJoin(em);
+		//decimaPrimeiraConsultaCarregamentocomJoinFetch(em);
+		//decimaSegundaConsultaFiltrandoRegistros(em);
+		decimaTerceiraUtilizandoOperadoresLogicos(em);
+		
 
 		em.close();
 		emf.close();
@@ -90,26 +98,93 @@ public class ConsultasComJPQL {
 	}
 
 	public static void oitavaConsultaPassandoParametros(EntityManager em) {
-		//Pesquisa por Id
+		// Pesquisa por Id
 		String jpql = "select u from Usuario u where u.id = :id ";
-		TypedQuery<Usuario> typedQuery = em
-					.createQuery(jpql, Usuario.class)
-					.setParameter("id", 1);
-		
+		TypedQuery<Usuario> typedQuery = em.createQuery(jpql, Usuario.class).setParameter("id", 1);
+
 		Usuario usuario = typedQuery.getSingleResult();
 		System.out.println(usuario.getId() + ", " + usuario.getNome());
-		
-		
-		//Pesquisa por Login
+
+		// Pesquisa por Login
 		String jpqlLogin = "select u from Usuario u where u.login = :login ";
-		TypedQuery<Usuario> typedQueryLogin = em
-					.createQuery(jpqlLogin, Usuario.class)
-					.setParameter("login", "ria");
-		
+		TypedQuery<Usuario> typedQueryLogin = em.createQuery(jpqlLogin, Usuario.class).setParameter("login", "ria");
+
 		Usuario usuarioLogin = typedQueryLogin.getSingleResult();
 		System.out.println(usuarioLogin.getId() + ", " + usuarioLogin.getNome());
-		
-		
+
 	}
 
+	public static void nonaConsultaFazendoJoins(EntityManager em) {
+		String jpql = "select u from Usuario u inner join u.dominio d where d.id = 1";
+		TypedQuery<Usuario> typedQuery = em.createQuery(jpql, Usuario.class);
+		List<Usuario> lista = typedQuery.getResultList();
+		lista.forEach(u -> System.out.println(u.getId() + " , " + u.getNome()));
+	}
+
+	private static void decimaConsultaFazendoLeftJoin(EntityManager em) {
+		String jpql = "select u, c from Usuario u left join u.configuracao c";
+		TypedQuery<Object[]> typedQuery = em.createQuery(jpql, Object[].class);
+		List<Object[]> usuarios = typedQuery.getResultList();
+
+		usuarios.forEach(arr -> {
+			//arr[0] == Usuario
+			//arr[1] == Configuracao
+			String out = ((Usuario) arr[0]).getNome();
+			if (arr[1] == null) {
+				out += ", NULL";
+			} else {
+				out += " , " + ((Configuracao) arr[1]).getId();
+			}
+			System.out.println(out);
+		});
+	}
+	
+	private static void decimaPrimeiraConsultaCarregamentocomJoinFetch(EntityManager em) {
+		String jpql = "select u from Usuario u join fetch u.configuracao join fetch u.dominio d ";
+		TypedQuery<Usuario> typedQuery = em.createQuery(jpql,Usuario.class);
+		List<Usuario> usuarios = typedQuery.getResultList();
+		usuarios.forEach(u -> System.out.println(u.getId()+" , "+u.getNome()));
+	}
+	
+	private static void decimaSegundaConsultaFiltrandoRegistros(EntityManager em) {
+		//LIKE, IS NULL, IS EMPTY, BETWEEN, >,<,>=,<=,<>,=
+		//IS NULL =  select u from Usuario u where u.senha is null;
+		//IS EMPTY = select d from Dominio d where u.usuario is empty;
+
+		
+		//String jpql = " select u from Usuario u where u.nome like :nome"; //Ex 1
+		String jpql = " select u from Usuario u where u.nome like concat(:nome,'%')";
+		TypedQuery<Usuario> typedQuery = em.createQuery(jpql,Usuario.class)
+				//.setParameter("nome", "Cal%"); //Ex 1
+				.setParameter("nome", "Cal");
+		List<Usuario> usuarios = typedQuery.getResultList();
+		usuarios.forEach(u -> System.out.println(u.getId()+" , "+u.getNome()));
+		
+				
+		
+		//Exemplo com Between Traz todos devido a ser sysdate
+		String jpql2 = " select u from Usuario u where u.ultimoAcesso between :ontem and :hoje";
+		TypedQuery<Usuario> typedQuery2 = em.createQuery(jpql2,Usuario.class)
+				//.setParameter("nome", "Cal%"); //Ex 1
+				.setParameter("ontem", LocalDateTime.now().minusDays(1))
+				.setParameter("hoje", LocalDateTime.now());
+		List<Usuario> usuarios2 = typedQuery2.getResultList();
+		usuarios2.forEach(u -> System.out.println(u.getId()+" , "+u.getNome()));
+	
+	}
+	
+	private static void decimaTerceiraUtilizandoOperadoresLogicos(EntityManager em) {
+		String jpql = " select u from Usuario u where "
+				+ " (u.ultimoAcesso > :ontem and u.ultimoAcesso < :hoje) "
+				+ " or u.ultimoAcesso is null ";
+		
+		TypedQuery<Usuario> typedQuery = em.createQuery(jpql,Usuario.class)
+				.setParameter("ontem", LocalDateTime.now().minusDays(1))
+				.setParameter("hoje", LocalDateTime.now());
+		List<Usuario> usuarios = typedQuery.getResultList();
+		usuarios.forEach(u -> System.out.println(u.getId()+" , "+u.getNome()));
+		
+	}
+	
+	
 }
