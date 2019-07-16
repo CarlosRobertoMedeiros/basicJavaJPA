@@ -31,16 +31,21 @@ public class ConsultasComJPQL {
 		// setimaConsultaFazendoProjecoesRetornandoDTO(em);
 		// oitavaConsultaPassandoParametros(em);
 		// nonaConsultaFazendoJoins(em);
-		//decimaConsultaFazendoLeftJoin(em);
-		//decimaPrimeiraConsultaCarregamentocomJoinFetch(em);
-		//decimaSegundaConsultaFiltrandoRegistros(em);
-		decimaTerceiraUtilizandoOperadoresLogicos(em);
+		// decimaConsultaFazendoLeftJoin(em);
+		// decimaPrimeiraConsultaCarregamentocomJoinFetch(em);
+		// decimaSegundaConsultaFiltrandoRegistros(em);
+		// decimaTerceiraUtilizandoOperadoresLogicos(em);
+		// decimaQuartaOrdenandoResultados(em);
+		   decimaQuintaPaginandoResultados(em);
 		
 
 		em.close();
 		emf.close();
 
 	}
+
+
+
 
 	public static void primeiraConsulta(EntityManager em) {
 		String jpql = "select u from Usuario u";
@@ -170,7 +175,6 @@ public class ConsultasComJPQL {
 				.setParameter("hoje", LocalDateTime.now());
 		List<Usuario> usuarios2 = typedQuery2.getResultList();
 		usuarios2.forEach(u -> System.out.println(u.getId()+" , "+u.getNome()));
-	
 	}
 	
 	private static void decimaTerceiraUtilizandoOperadoresLogicos(EntityManager em) {
@@ -183,8 +187,23 @@ public class ConsultasComJPQL {
 				.setParameter("hoje", LocalDateTime.now());
 		List<Usuario> usuarios = typedQuery.getResultList();
 		usuarios.forEach(u -> System.out.println(u.getId()+" , "+u.getNome()));
-		
 	}
 	
-	
+	private static void decimaQuartaOrdenandoResultados(EntityManager em) {
+		String JPQL = " select u from Usuario u order by u.nome ";
+		//String JPQL = " select u from Usuario u order by u.dominio.nome ";
+		TypedQuery<Usuario> typedQuery = em.createQuery(JPQL,Usuario.class);
+		List<Usuario> usuarios = typedQuery.getResultList();
+		usuarios.forEach(u -> System.out.println(u.getId()+" , " + u.getNome()));
+	}
+
+	private static void decimaQuintaPaginandoResultados(EntityManager em) {
+		String JPQL = " select u from Usuario u ";
+		//String JPQL = " select u from Usuario u order by u.dominio.nome ";
+		TypedQuery<Usuario> typedQuery = em.createQuery(JPQL,Usuario.class)
+				.setFirstResult(0) //.setFirstResult(2) //.setFirstResult(4) 
+				.setMaxResults(2);
+		List<Usuario> usuarios = typedQuery.getResultList();
+		usuarios.forEach(u -> System.out.println(u.getId()+" , " + u.getNome()));
+	}
 }

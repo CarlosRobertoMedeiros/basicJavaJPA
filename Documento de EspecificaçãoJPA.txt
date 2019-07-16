@@ -1,0 +1,82 @@
+Especificação
+	- Uma série de regras que futuramente deveram ser implementadas
+	- O javax.persistence é um pacote da especificação
+
+O que é JPA(Java Persistence Api)?
+	É uma especificação oficial que descreve como deve ser o comportamento dos frameworks de persistência java que desejarem implementá-la.
+
+Implementações (Mais Famosas)
+	- Hibernate(Mais utilizada)
+	- EclipseLink(Implementação Referência)
+		Normalmente quando sai alguma novidade na especificação o EclipseLink implementa primeiro
+
+Mapeamento Objeto Relacional (ORM)
+	- Representação de tabelas do banco de dados relacional através de classes java, téncica conhecida como ORM - Object Relational Mapping
+
+	Ex.:
+	Banco de Dados                     Classe
+	  Coluna 	   "passa a ser"	   Atributo
+	 Registro	   "passa a ser"	   Objeto
+
+Anotações(Elas terminam a configuração necessária para que seja possível automatizar a geração sql)
+	- @Entity
+	- @Table
+	- @id
+	- @Column
+
+Continuar do Vídeo 1 a partir do minuto 51
+
+--Usando o Cache de primeiro Nível
+  A partir do momento que tenho uma entidade ja gerenciada o hibernate busca da memória o valor não sendo necessário uma nova consulta no banco de dados.
+
+Para facilitar a usabilidade em memória do entitymanager
+Caso eu precise pesquisar 2 vezes o mesmo cliente
+O objeto gera um cache e executa no banco de dados apenas uma consulta.
+
+Cliente cliente = em.find(Cliente.class,1);
+Cliente cliente2 = em.find(Cliente.class,1);
+
+
+
+EntityManager 
+	Tipos de Objetos
+		- Gerenciado(Managed) = para colocar tem que executar o comando find
+
+Continuar de 1h e 3 minutos vídeo 1 sobre JPA
+
+Método persist = apenas para novas inserções
+Método merge = para novas inserções e atualizações
+
+Explicando o flush
+	Em casos que existem várias operações dentro de uma transação
+	  Imagine que para dar procedimento a uma das operações o hibernate
+	  precisa confirmar uma das operações feitas no início
+	  porém isso só vai ser executado no final quando o commit da transações for chamado e com isso o commit executa internamente o flush.
+
+	  Para casos que necessitamos de atualizações "parciais", força-se o entityManager com o flush que vai atualizar até aquele ponto o que foi necessário.
+
+Parte 2 de JPA
+  Vantagens do JPA 
+
+  1 -  em JPQL eu não uso o nome da coluna eu uso o nome da propriedade
+  2 -  Ao abstrair o sql a implementação do JPA tem condições de adicionar funcionalidades de acordo com o dialeto correto selecionado. 
+  3 - Vantagem em trocar o dialeto sem mexer nas queries podemos fazer a aplicação funcionar sem problemas
+
+  single sign on??? (Sistema de autenticação) 
+
+  select alguma coisa from classe ()
+
+  Continuar a partir de 17 minutos 
+
+  JoinFetch Resolvendo consultas em uma só
+
+ https://github.com/algaworks/live-join-jpql-jpa
+
+Parte 3 de JPA
+	Continuar em 22 minutos
+
+JoinFetch
+   Vai resolver o problema de carregar várias outras queries
+
+   Continuar no minuto 58	
+  
