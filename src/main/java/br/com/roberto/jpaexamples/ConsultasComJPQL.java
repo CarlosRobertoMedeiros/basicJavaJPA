@@ -45,8 +45,6 @@ public class ConsultasComJPQL {
 	}
 
 
-
-
 	public static void primeiraConsulta(EntityManager em) {
 		String jpql = "select u from Usuario u";
 		TypedQuery<Usuario> typedQuery = em.createQuery(jpql, Usuario.class);
