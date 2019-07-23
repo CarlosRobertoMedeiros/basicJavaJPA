@@ -21,18 +21,21 @@ public class ConsultasComCriteria {
 		EntityManagerFactory emf = Persistence.createEntityManagerFactory("Usuarios-PU");
 		EntityManager em = emf.createEntityManager();
 
-		// primeiraConsulta(em); //Continuar a partir de 00:46:00 Problemas ao chamar o objeto DTO no criteria
+		// primeiraConsulta(em); //Continuar a partir de 00:46:00 Problemas ao chamar o
+		// objeto DTO no criteria
 		// segundaConsultaEscolhendoRetorno(em);
 		// terceiraConsultaRetornandoUmaString(em);
-		//quartaConsultaFazendoProjecoes(em);
-		quintaConsultaFazendoProjecoesRetornandoUsuarioDTO(em);
-		
+		// quartaConsultaFazendoProjecoes(em);
+		// quintaConsultaFazendoProjecoesRetornandoUsuarioDTO(em);
+		// sextaConsultaPassandoParametros(em);
+		// setimaConsultaPassandoParametrosString(em);
+		// oitavaConsultaOrdenandoResultados(em);
+		nonaConsultaPaginandoResultados(em);
 
 		em.close();
 		emf.close();
 
 	}
-
 
 	private static void primeiraConsulta(EntityManager em) {
 		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
@@ -95,19 +98,78 @@ public class ConsultasComCriteria {
 
 	private static void quintaConsultaFazendoProjecoesRetornandoUsuarioDTO(EntityManager em) {
 		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-		
+
 		CriteriaQuery<UsuarioDTO> criteriaQuery = criteriaBuilder.createQuery(UsuarioDTO.class);
 		Root<Usuario> root = criteriaQuery.from(Usuario.class);
 
-		criteriaQuery.multiselect(criteriaBuilder.construct(UsuarioDTO.class, 
-						root.get("id"), 
-						root.get("login"), 
-						root.get("nome")));
+		criteriaQuery.select(
+				criteriaBuilder.construct(UsuarioDTO.class, root.get("id"), root.get("login"), root.get("nome")));
 
 		TypedQuery<UsuarioDTO> typedQuery = em.createQuery(criteriaQuery);
 		List<UsuarioDTO> usuarios = typedQuery.getResultList();
-		usuarios.forEach(u -> System.out.println("DTO: "+u.getId()+" , "+u.getNome()));
-		
+		usuarios.forEach(u -> System.out.println("DTO: " + u.getId() + " , " + u.getNome()));
+
+	}
+
+	private static void sextaConsultaPassandoParametros(EntityManager em) {
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+
+		CriteriaQuery<Usuario> criteriaQuery = criteriaBuilder.createQuery(Usuario.class);
+		Root<Usuario> root = criteriaQuery.from(Usuario.class);
+
+		criteriaQuery.select(root);
+		criteriaQuery.where(criteriaBuilder.equal(root.get("id"), 1));// Passando Parâmetros
+
+		TypedQuery<Usuario> typedQuery = em.createQuery(criteriaQuery);
+		Usuario usuario = typedQuery.getSingleResult();
+		System.out.println("DTO: " + usuario.getId() + " , " + usuario.getNome());
+
+	}
+
+	private static void setimaConsultaPassandoParametrosString(EntityManager em) {
+
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+
+		CriteriaQuery<Usuario> criteriaQuery = criteriaBuilder.createQuery(Usuario.class);
+		Root<Usuario> root = criteriaQuery.from(Usuario.class);
+
+		criteriaQuery.select(root);
+		criteriaQuery.where(criteriaBuilder.equal(root.get("login"), "ria"));// Mudando Para String
+
+		TypedQuery<Usuario> typedQuery = em.createQuery(criteriaQuery);
+		Usuario usuario = typedQuery.getSingleResult();
+		System.out.println("DTO: " + usuario.getId() + " , " + usuario.getNome());
+
+	}
+
+	private static void oitavaConsultaOrdenandoResultados(EntityManager em) {
+
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+		CriteriaQuery<Usuario> criteriaQuery = criteriaBuilder.createQuery(Usuario.class);
+		Root<Usuario> root = criteriaQuery.from(Usuario.class);
+
+		criteriaQuery.select(root);
+		criteriaQuery.orderBy(criteriaBuilder.asc(root.get("nome")));// Ordenação por Nome
+
+		TypedQuery<Usuario> typedQuery = em.createQuery(criteriaQuery);
+		List<Usuario> usuarios = typedQuery.getResultList();
+
+		usuarios.forEach(u -> System.out.println(u.getId() + " " + u.getNome()));
+
+	}
+
+	private static void nonaConsultaPaginandoResultados(EntityManager em) {
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+		CriteriaQuery<Usuario> criteriaQuery = criteriaBuilder.createQuery(Usuario.class);
+		Root<Usuario> root = criteriaQuery.from(Usuario.class);
+
+		criteriaQuery.select(root);
+
+		TypedQuery<Usuario> typedQuery = em.createQuery(criteriaQuery).setMaxResults(2).setFirstResult(0); // Primeiro
+		List<Usuario> usuarios = typedQuery.getResultList();
+
+		usuarios.forEach(u -> System.out.println(u.getId() + " " + u.getNome()));
+
 	}
 
 }
