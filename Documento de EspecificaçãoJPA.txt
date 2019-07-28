@@ -80,3 +80,5 @@ JoinFetch
 
    Continuar no minuto 58	
   
+  Concorrência com JPA
+     Lock Otimista e Lock Pessimista
